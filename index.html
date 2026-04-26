@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Accident Detection App</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Onboarding Overlay -->
+        <aside id="onboarding-overlay" class="onboarding-overlay">
+            <div class="onboarding-slider">
+                <!-- Slide 1 -->
+                <div class="onboarding-slide active">
+                    <div class="slide-icon"><i class="ph-duotone ph-lightning"></i></div>
+                    <h2>Fast Emergency Reporting</h2>
+                    <p>Snap a picture. Alert authorities instantly. Every second counts.</p>
+                </div>
+                <!-- Slide 2 -->
+                <div class="onboarding-slide">
+                    <div class="slide-icon"><i class="ph-duotone ph-map-pin"></i></div>
+                    <h2>Precise Location</h2>
+                    <p>We automatically capture your GPS coordinates to dispatch help to your exact spot.</p>
+                </div>
+                <!-- Slide 3 -->
+                <div class="onboarding-slide">
+                    <div class="slide-icon"><i class="ph-duotone ph-heartbeat"></i></div>
+                    <h2>Immediate Response</h2>
+                    <p>Your quick actions help ensure faster emergency response times, potentially saving lives.</p>
+                </div>
+            </div>
+            
+            <div class="onboarding-controls">
+                <div class="progress-dots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="action-buttons">
+                    <button id="btn-skip" class="btn-text">Skip</button>
+                    <button id="btn-next" class="btn-primary">Next</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Header -->
+        <header class="app-header">
+            <h1 id="page-title">Home</h1>
+            <div class="header-actions">
+                <button class="icon-btn" aria-label="Notifications"><i class="ph ph-bell"></i></button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Home Page -->
+            <section id="home" class="page active">
+                <div class="blank-state">
+                    <i class="ph-duotone ph-house"></i>
+                    <h2>Welcome Home</h2>
+                    <p>Dashboard and summary will be populated here.</p>
+                </div>
+            </section>
+
+            <!-- Report Page -->
+            <section id="report" class="page">
+                <div class="blank-state">
+                    <i class="ph-duotone ph-warning-circle"></i>
+                    <h2>Report an Incident</h2>
+                    <p>Accident reporting form and camera access will go here.</p>
+                </div>
+            </section>
+
+            <!-- Map Page -->
+            <section id="map" class="page">
+                <div class="blank-state">
+                    <i class="ph-duotone ph-map-pin"></i>
+                    <h2>Live Map</h2>
+                    <p>Interactive map reflecting nearby incidents will be displayed here.</p>
+                </div>
+            </section>
+
+            <!-- Profile Page -->
+            <section id="profile" class="page">
+                <div class="blank-state">
+                    <i class="ph-duotone ph-user"></i>
+                    <h2>User Profile</h2>
+                    <p>Account settings and history will be available here.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-target="home">
+                <div class="nav-icon-wrapper">
+                    <i class="ph ph-house"></i>
+                    <i class="ph-fill ph-house active-icon"></i>
+                </div>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-target="report">
+                <div class="nav-icon-wrapper">
+                    <i class="ph ph-warning-circle"></i>
+                    <i class="ph-fill ph-warning-circle active-icon"></i>
+                </div>
+                <span>Report</span>
+            </button>
+            <button class="nav-item" data-target="map">
+                <div class="nav-icon-wrapper">
+                    <i class="ph ph-map-pin"></i>
+                    <i class="ph-fill ph-map-pin active-icon"></i>
+                </div>
+                <span>Map</span>
+            </button>
+            <button class="nav-item" data-target="profile">
+                <div class="nav-icon-wrapper">
+                    <i class="ph ph-user"></i>
+                    <i class="ph-fill ph-user active-icon"></i>
+                </div>
+                <span>Profile</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
