@@ -198,11 +198,37 @@
             </section>
 
             <!-- Map Page -->
-            <section id="map" class="page">
-                <div class="blank-state">
-                    <i class="ph-duotone ph-map-pin"></i>
-                    <h2>Live Map</h2>
-                    <p>Interactive map reflecting nearby incidents will be displayed here.</p>
+            <section id="map" class="page map-page">
+                <!-- Map Controls Bar -->
+                <div class="map-controls-bar">
+                    <div class="map-layer-btns">
+                        <button class="map-layer-btn active" id="btn-layer-road" data-maptype="m">Road</button>
+                        <button class="map-layer-btn" id="btn-layer-satellite" data-maptype="k">Satellite</button>
+                        <button class="map-layer-btn" id="btn-layer-hybrid" data-maptype="h">Hybrid</button>
+                        <button class="map-layer-btn" id="btn-layer-terrain" data-maptype="p">Terrain</button>
+                    </div>
+                    <button class="map-locate-btn" id="btn-map-locate" aria-label="Center on my location">
+                        <i class="ph ph-crosshair-simple"></i>
+                    </button>
+                </div>
+
+                <!-- Google Maps Iframe -->
+                <div class="map-frame-wrapper">
+                    <iframe
+                        id="google-map-frame"
+                        class="google-map-iframe"
+                        src="https://maps.google.com/maps?q=0,0&z=14&t=m&output=embed&iwloc=near"
+                        frameborder="0"
+                        allowfullscreen
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="Live Incident Map">
+                    </iframe>
+                    <!-- Loading overlay -->
+                    <div class="map-loading" id="map-loading">
+                        <div class="map-loading-spinner"></div>
+                        <p>Acquiring your location...</p>
+                    </div>
                 </div>
             </section>
 

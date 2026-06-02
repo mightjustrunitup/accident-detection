@@ -1081,3 +1081,120 @@ input:checked+.slider-round:before {
     cursor: pointer;
     box-shadow: var(--shadow);
 }
+
+/* =========================================
+   Map Page Styles
+   ========================================= */
+.map-page {
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
+    overflow: hidden;
+    height: 100%;
+}
+
+.map-controls-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--background, #fff);
+    border-bottom: 1px solid rgba(108,92,231,0.08);
+    gap: 10px;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.map-layer-btns {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.map-layer-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid #e0e0e0;
+    background: transparent;
+    color: #636e72;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Outfit', sans-serif;
+}
+
+.map-layer-btn.active,
+.map-layer-btn:hover {
+    background: #6c5ce7;
+    border-color: #6c5ce7;
+    color: #fff;
+}
+
+.map-locate-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #6c5ce7;
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(108,92,231,0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.map-locate-btn:active {
+    transform: scale(0.93);
+    box-shadow: 0 2px 6px rgba(108,92,231,0.2);
+}
+
+.map-frame-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.google-map-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Loading Overlay */
+.map-loading {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    z-index: 20;
+    transition: opacity 0.4s ease;
+}
+
+.map-loading p {
+    font-size: 14px;
+    color: #636e72;
+    font-weight: 500;
+}
+
+.map-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(108,92,231,0.15);
+    border-top-color: #6c5ce7;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

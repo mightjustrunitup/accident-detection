@@ -1002,5 +1002,76 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDashboard();
     acquireDeviceLocation();
     loadIncidentsFromSupabase();
+
+    // =========================================
+    // Google Maps Iframe Logic (No API Key)
+    // =========================================
+    const mapFrame = document.getElementById('google-map-frame');
+    const mapLoading = document.getElementById('map-loading');
+    const btnMapLocate = document.getElementById('btn-map-locate');
+    const layerBtns = document.querySelectorAll('.map-layer-btn');
+
+    let mapLat = null;
+    let mapLng = null;
+    let mapType = 'm'; // m=road, k=satellite, h=hybrid, p=terrain
+
+    function buildMapUrl(lat, lng, type) {
+        return `https://maps.google.com/maps?q=${lat},${lng}&z=15&t=${type}&output=embed&iwloc=near`;
+    }
+
+    function updateMap(lat, lng, type) {
+        if (!mapFrame) return;
+        mapLat = lat;
+        mapLng = lng;
+        mapType = type || mapType;
+        mapFrame.src = buildMapUrl(mapLat, mapLng, mapType);
+        if (mapLoading) mapLoading.style.display = 'flex';
+        mapFrame.onload = () => {
+            if (mapLoading) mapLoading.style.display = 'none';
+        };
+    }
+
+    function initMap() {
+        if (!mapFrame) return;
+        if (mapLoading) mapLoading.style.display = 'flex';
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                updateMap(pos.coords.latitude, pos.coords.longitude, mapType);
+            },
+            () => {
+                // Fallback to a central location (Nigeria) if denied
+                updateMap(9.0579, 7.4951, mapType);
+                if (mapLoading) mapLoading.style.display = 'none';
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        );
+    }
+
+    // Layer switcher buttons
+    layerBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            layerBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            mapType = btn.dataset.maptype;
+            if (mapLat !== null && mapLng !== null) {
+                updateMap(mapLat, mapLng, mapType);
+            }
+        });
+    });
+
+    // Locate / re-center button
+    if (btnMapLocate) {
+        btnMapLocate.addEventListener('click', initMap);
+    }
+
+    // Auto-init the map when user taps the Map tab
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            if (item.dataset.page === 'map' && mapLat === null) {
+                initMap();
+            }
+        });
+    });
 });
 
