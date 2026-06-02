@@ -1035,6 +1035,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mapFrame) return;
         if (mapLoading) mapLoading.style.display = 'flex';
 
+        // Fast path: if we already have highly accurate GPS from the report tab, use it instantly!
+        if (currentLat !== null && currentLng !== null) {
+            updateMap(currentLat, currentLng, mapType);
+            return;
+        }
+
+        // Otherwise, do a rapid low-accuracy check so the map loads in milliseconds
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 updateMap(pos.coords.latitude, pos.coords.longitude, mapType);
@@ -1044,7 +1051,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateMap(9.0579, 7.4951, mapType);
                 if (mapLoading) mapLoading.style.display = 'none';
             },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+            { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
         );
     }
 
