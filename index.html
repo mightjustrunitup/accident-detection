@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1a1a24">
+    <meta name="theme-color" content="#f4f6fa">
     <title>Accident Detection App</title>
     <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +17,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Onboarding Overlay -->
@@ -39,7 +42,7 @@
                     <p>Your quick actions help ensure faster emergency response times, potentially saving lives.</p>
                 </div>
             </div>
-            
+
             <div class="onboarding-controls">
                 <div class="progress-dots">
                     <div class="dot active"></div>
@@ -92,10 +95,88 @@
 
             <!-- Profile Page -->
             <section id="profile" class="page">
-                <div class="blank-state">
-                    <i class="ph-duotone ph-user"></i>
-                    <h2>User Profile</h2>
-                    <p>Account settings and history will be available here.</p>
+                <div class="profile-container">
+
+                    <!-- Profile Card -->
+                    <div class="profile-card">
+                        <div class="avatar-container">
+                            <img id="profile-avatar"
+                                src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c5ce7'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>"
+                                alt="Avatar">
+                            <label for="avatar-upload" class="edit-avatar-btn">
+                                <i class="ph ph-camera"></i>
+                            </label>
+                            <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="profile-basic-info">
+                            <input type="text" id="profile-name" class="profile-input-name" placeholder="Your Name"
+                                value="John Doe">
+                            <input type="tel" id="profile-phone" class="profile-input-phone"
+                                placeholder="Your Phone Number" value="+1 (555) 019-2834">
+                        </div>
+                    </div>
+
+                    <!-- Personal Details Section -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <i class="ph-duotone ph-user-focus"></i>
+                            <h3>Personal Details</h3>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-email">Email Address</label>
+                            <input type="email" id="profile-email" placeholder="email@example.com"
+                                value="johndoe@example.com">
+                        </div>
+                    </div>
+
+                    <!-- Application Settings Section -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <i class="ph-duotone ph-gear"></i>
+                            <h3>App Settings</h3>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Automatic Collision Detection</h4>
+                                <p>Uses phone sensors to detect impact events automatically.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-auto-detect" checked>
+                                <span class="slider-round"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>High Sensitivity</h4>
+                                <p>Increases sensor sensitivity for minor bumps.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-high-sens">
+                                <span class="slider-round"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Push Notifications</h4>
+                                <p>Receive updates about reported incidents nearby.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="setting-notify" checked>
+                                <span class="slider-round"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="profile-actions">
+                        <button type="button" id="btn-save-profile" class="btn-primary-wide">
+                            <i class="ph ph-floppy-disk"></i> Save Profile
+                        </button>
+                    </div>
+
                 </div>
             </section>
         </main>
@@ -131,8 +212,11 @@
                 <span>Profile</span>
             </button>
         </nav>
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="toast-container"></div>
     </div>
 
     <script src="app.js"></script>
 </body>
+
 </html>
