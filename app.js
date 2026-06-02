@@ -165,6 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
             btnGoogleAuth.innerHTML = 'Signing in...';
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
+                options: {
+                    redirectTo: window.location.href
+                }
             });
             if (error) {
                 console.error('Error signing in:', error.message);
