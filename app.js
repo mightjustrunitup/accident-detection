@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.href
+                    redirectTo: window.location.origin
                 }
             });
             if (error) {
@@ -187,6 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Sign out failed.', 'error');
             } else {
                 showToast('Signed out successfully.', 'success');
+                // Clean the URL to remove any lingering OAuth tokens
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
         });
     }
