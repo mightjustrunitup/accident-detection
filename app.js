@@ -97,8 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('localStorage is blocked. Showing onboarding by default.', error);
     }
 
+    let currentUser = null;
+
     if (!hasOnboarded) {
         onboardingOverlay.classList.add('show');
+    } else {
+        // Only check auth state if onboarding is done
+        checkAuthState();
     }
 
     function updateSlides(newIndex) {
@@ -128,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         onboardingOverlay.classList.remove('show');
         setTimeout(() => {
             onboardingOverlay.style.display = 'none';
+            checkAuthState(); // Check auth after onboarding
         }, 400);
     }
 
@@ -143,6 +149,89 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(btnSkip) {
         btnSkip.addEventListener('click', completeOnboarding);
+    }
+
+    // =========================================
+    // Supabase Auth Logic
+    // =========================================
+    const authOverlay = document.getElementById('auth-overlay');
+    const btnGoogleAuth = document.getElementById('btn-google-auth');
+    const btnSignout = document.getElementById('btn-signout');
+
+    // Handle Google Sign-in
+    if (btnGoogleAuth) {
+        btnGoogleAuth.addEventListener('click', async () => {
+            btnGoogleAuth.disabled = true;
+            btnGoogleAuth.innerHTML = 'Signing in...';
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+            });
+            if (error) {
+                console.error('Error signing in:', error.message);
+                showToast('Sign in failed. Please try again.', 'error');
+                btnGoogleAuth.disabled = false;
+                btnGoogleAuth.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="google-logo"> Continue with Google';
+            }
+        });
+    }
+
+    // Handle Sign-out
+    if (btnSignout) {
+        btnSignout.addEventListener('click', async () => {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('Error signing out:', error.message);
+                showToast('Sign out failed.', 'error');
+            } else {
+                showToast('Signed out successfully.', 'success');
+            }
+        });
+    }
+
+    // Listen for Auth State Changes
+    supabase.auth.onAuthStateChange((event, session) => {
+        console.log(`Auth event: ${event}`, session);
+        if (session) {
+            currentUser = session.user;
+            authOverlay.style.display = 'none';
+            updateProfileWithAuthData(currentUser);
+        } else {
+            currentUser = null;
+            // Only show auth overlay if onboarding is complete
+            if (localStorage.getItem('hasOnboarded') === 'true') {
+                authOverlay.style.display = 'flex';
+            }
+        }
+    });
+
+    async function checkAuthState() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            authOverlay.style.display = 'flex';
+        } else {
+            currentUser = session.user;
+            updateProfileWithAuthData(currentUser);
+        }
+    }
+
+    function updateProfileWithAuthData(user) {
+        if (!user) return;
+        
+        const profileName = document.getElementById('profile-name');
+        const profileEmail = document.getElementById('profile-email');
+        const profileAvatar = document.getElementById('profile-avatar');
+
+        if (user.user_metadata) {
+            if (profileName && user.user_metadata.full_name) {
+                profileName.value = user.user_metadata.full_name;
+            }
+            if (profileAvatar && user.user_metadata.avatar_url) {
+                profileAvatar.src = user.user_metadata.avatar_url;
+            }
+        }
+        if (profileEmail && user.email) {
+            profileEmail.value = user.email;
+        }
     }
 
     // =========================================
