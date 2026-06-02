@@ -213,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
             authOverlay.style.display = 'flex';
         } else {
             currentUser = session.user;
+            authOverlay.style.display = 'none';
             updateProfileWithAuthData(currentUser);
         }
     }
