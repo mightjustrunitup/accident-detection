@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentLat = null;
     let currentLng = null;
 
-    function simulateGPS() {
+    function acquireDeviceLocation() {
         if (!gpsStatus) return;
         gpsStatus.textContent = 'Acquiring GPS Lock...';
         if (gpsCoords) gpsCoords.textContent = 'Requesting device location...';
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (btnRefreshGps) {
-        btnRefreshGps.addEventListener('click', simulateGPS);
+        btnRefreshGps.addEventListener('click', acquireDeviceLocation);
     }
 
     // Photo Attachment Handler
@@ -997,7 +997,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Page Content
     loadProfile();
     renderDashboard();
-    simulateGPS();
+    acquireDeviceLocation();
     loadIncidentsFromSupabase();
 });
 
