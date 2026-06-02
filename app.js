@@ -1,11 +1,11 @@
 // =========================================
 // Supabase Client Initialization
 // =========================================
-const SUPABASE_URL = 'https://paeqykisnkjmdvbarljg.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZXF5a2lzbmtqbWR2YmFybGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDYyNTgsImV4cCI6MjA5NTk4MjI1OH0.yL51lbtFC4dFwJSvVgjE8qUmgoaalcgTW1mez0BOiL4';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 document.addEventListener('DOMContentLoaded', () => {
+    const SUPABASE_URL = 'https://paeqykisnkjmdvbarljg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZXF5a2lzbmtqbWR2YmFybGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDYyNTgsImV4cCI6MjA5NTk4MjI1OH0.yL51lbtFC4dFwJSvVgjE8qUmgoaalcgTW1mez0BOiL4';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     // Navigation elements
     const navItems = document.querySelectorAll('.nav-item');
     const pages = document.querySelectorAll('.page');
