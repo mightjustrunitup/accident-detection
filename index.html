@@ -102,10 +102,98 @@
 
             <!-- Report Page -->
             <section id="report" class="page">
-                <div class="blank-state">
-                    <i class="ph-duotone ph-warning-circle"></i>
-                    <h2>Report an Incident</h2>
-                    <p>Accident reporting form and camera access will go here.</p>
+                <div class="report-container">
+                    <div class="section-header">
+                        <i class="ph-duotone ph-warning-circle"></i>
+                        <h2>Report an Incident</h2>
+                    </div>
+
+                    <form id="incident-report-form" class="report-form">
+                        <!-- Category Selection -->
+                        <div class="form-group">
+                            <label>Type of Incident</label>
+                            <div class="category-grid">
+                                <button type="button" class="category-btn active" id="cat-collision">
+                                    <input type="radio" name="incident-category" value="Collision" checked hidden>
+                                    <i class="ph ph-car-crash"></i>
+                                    <span>Collision</span>
+                                </button>
+                                <button type="button" class="category-btn" id="cat-breakdown">
+                                    <input type="radio" name="incident-category" value="Breakdown" hidden>
+                                    <i class="ph ph-wrench"></i>
+                                    <span>Breakdown</span>
+                                </button>
+                                <button type="button" class="category-btn" id="cat-medical">
+                                    <input type="radio" name="incident-category" value="Medical" hidden>
+                                    <i class="ph ph-first-aid"></i>
+                                    <span>Medical</span>
+                                </button>
+                                <button type="button" class="category-btn" id="cat-hazard">
+                                    <input type="radio" name="incident-category" value="Hazard" hidden>
+                                    <i class="ph ph-warning-octagon"></i>
+                                    <span>Hazard</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Severity Slider -->
+                        <div class="form-group">
+                            <label>Severity Level</label>
+                            <input type="range" id="report-severity" min="1" max="4" value="1" class="severity-slider">
+                            <div class="severity-labels">
+                                <span id="label-sev-1" data-value="1" class="active">Minor</span>
+                                <span id="label-sev-2" data-value="2">Moderate</span>
+                                <span id="label-sev-3" data-value="3">Severe</span>
+                                <span id="label-sev-4" data-value="4">Critical</span>
+                            </div>
+                        </div>
+
+                        <!-- Location via HTML5 API -->
+                        <div class="form-group gps-group">
+                            <label>Location</label>
+                            <div class="gps-status-card">
+                                <div class="gps-icon-wrapper">
+                                    <i class="ph-duotone ph-crosshair"></i>
+                                </div>
+                                <div class="gps-info">
+                                    <h4 id="report-gps-status">Pending GPS...</h4>
+                                    <p id="report-gps-coords">Tap "Detect Location" to acquire GPS.</p>
+                                </div>
+                                <button type="button" id="btn-re-detect-gps" class="icon-btn-secondary" aria-label="Refresh GPS">
+                                    <i class="ph ph-arrows-clockwise"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label>Additional Details</label>
+                            <textarea id="report-description" rows="3" placeholder="Provide any additional information..." required></textarea>
+                        </div>
+
+                        <!-- Photo Attachment -->
+                        <div class="form-group">
+                            <label>Attach Photo (Optional)</label>
+                            <div class="photo-upload-card">
+                                <input type="file" id="report-photo" accept="image/*" hidden>
+                                <label for="report-photo" id="upload-placeholder" class="upload-label">
+                                    <i class="ph-duotone ph-camera"></i>
+                                    <span>Tap to take or upload a photo</span>
+                                </label>
+                                <div class="upload-preview-container">
+                                    <img id="upload-preview" src="" alt="Preview" style="display: none;">
+                                    <button type="button" id="btn-remove-preview" class="icon-btn-danger" style="display: none;">
+                                        <i class="ph ph-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn-primary-wide submit-report-btn">
+                            <i class="ph ph-paper-plane-tilt"></i> Submit Report
+                        </button>
+                    </form>
                 </div>
             </section>
 

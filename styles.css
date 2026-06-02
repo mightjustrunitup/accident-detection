@@ -881,3 +881,203 @@ input:checked+.slider-round:before {
     width: 24px;
     height: 24px;
 }
+
+/* =========================================
+   Report Form Styles
+   ========================================= */
+.report-container {
+    padding-bottom: 30px;
+}
+
+.report-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.category-btn {
+    background: var(--surface);
+    border: 2px solid transparent;
+    padding: 16px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.category-btn i {
+    font-size: 28px;
+    color: var(--text-light);
+    transition: var(--transition);
+}
+
+.category-btn span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.category-btn.active {
+    border-color: var(--primary);
+    background: rgba(108, 92, 231, 0.05);
+}
+
+.category-btn.active i {
+    color: var(--primary);
+}
+
+/* Severity Slider */
+.severity-slider {
+    width: 100%;
+    accent-color: #ff7675;
+}
+
+.severity-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 5px;
+}
+
+.severity-labels span {
+    font-size: 12px;
+    color: var(--text-light);
+    transition: var(--transition);
+}
+
+.severity-labels span.active {
+    color: #ff7675;
+    font-weight: 700;
+}
+
+/* GPS Status Card */
+.gps-status-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    border: 1px solid var(--border);
+}
+
+.gps-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(108, 92, 231, 0.1);
+    color: var(--primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+}
+
+.gps-info {
+    flex: 1;
+}
+
+.gps-info h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+
+.gps-info p {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.icon-btn-secondary {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--background);
+    border: none;
+    color: var(--text-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.icon-btn-secondary:active {
+    transform: scale(0.9);
+}
+
+/* Photo Upload */
+.photo-upload-card {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    gap: 10px;
+    color: var(--text-light);
+    cursor: pointer;
+}
+
+.upload-label i {
+    font-size: 32px;
+    color: var(--primary);
+}
+
+.upload-preview-container {
+    position: relative;
+    width: 100%;
+}
+
+.upload-preview-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.icon-btn-danger {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #ff6b6b;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+}
