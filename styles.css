@@ -2,7 +2,7 @@
     /* Brand Colors */
     --primary: #6c5ce7;
     --primary-light: #a29bfe;
-    --background: #f4f6fa;
+    --background: #ffffff;
     --card-bg: #ffffff;
 
     /* Text Colors */
@@ -29,35 +29,26 @@
 }
 
 html {
-    background-color: #ffffff;
-    height: 100%;
-    overflow: hidden;
+    background-color: var(--background);
 }
 
 body {
-    height: 100%;
-    overflow: hidden;
+    min-height: 100vh;
     background-color: var(--background);
 }
 
 @media (max-width: 767px) {
     body {
-        background-color: var(--background); /* Blend with iOS Safari floating tab bar / safe area */
+        background-color: var(--background);
         display: flex;
         justify-content: center;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
     }
 
     /* Mobile App Container Simulation */
     .app-container {
         width: 100%;
         max-width: 480px;
-        height: 100%;
+        height: 100dvh;
         position: relative;
         overflow: hidden;
         display: flex;
