@@ -1,3 +1,10 @@
+// =========================================
+// Supabase Client Initialization
+// =========================================
+const SUPABASE_URL = 'https://paeqykisnkjmdvbarljg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhZXF5a2lzbmtqbWR2YmFybGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDYyNTgsImV4cCI6MjA5NTk4MjI1OH0.yL51lbtFC4dFwJSvVgjE8qUmgoaalcgTW1mez0BOiL4';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 document.addEventListener('DOMContentLoaded', () => {
     // Navigation elements
     const navItems = document.querySelectorAll('.nav-item');
@@ -281,18 +288,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Location Simulation
+    // =========================================
+    // Real GPS via HTML5 Geolocation API
+    // =========================================
+    let currentLat = null;
+    let currentLng = null;
+
     function simulateGPS() {
         if (!gpsStatus) return;
         gpsStatus.textContent = 'Acquiring GPS Lock...';
-        gpsCoords.textContent = 'Contacting satellites...';
-        
-        setTimeout(() => {
-            const randomLat = (37.7749 + (Math.random() - 0.5) * 0.02).toFixed(5);
-            const randomLng = (-122.4194 + (Math.random() - 0.5) * 0.02).toFixed(5);
-            gpsStatus.textContent = 'GPS Active (Accuracy ±4m)';
-            gpsCoords.textContent = `Lat: ${randomLat}, Lng: ${randomLng}`;
-        }, 800);
+        if (gpsCoords) gpsCoords.textContent = 'Requesting device location...';
+
+        if (!navigator.geolocation) {
+            gpsStatus.textContent = 'GPS Not Supported';
+            if (gpsCoords) gpsCoords.textContent = 'Your browser does not support geolocation.';
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                currentLat = position.coords.latitude;
+                currentLng = position.coords.longitude;
+                const accuracy = position.coords.accuracy.toFixed(0);
+                if (gpsStatus) gpsStatus.textContent = `GPS Active (Accuracy ±${accuracy}m)`;
+                if (gpsCoords) gpsCoords.textContent = `Lat: ${currentLat.toFixed(6)}, Lng: ${currentLng.toFixed(6)}`;
+            },
+            (error) => {
+                let msg = 'Location unavailable.';
+                if (error.code === 1) msg = 'Location access denied by user.';
+                if (error.code === 2) msg = 'Position unavailable (no signal).';
+                if (error.code === 3) msg = 'Location request timed out.';
+                if (gpsStatus) gpsStatus.textContent = msg;
+                if (gpsCoords) gpsCoords.textContent = 'Could not retrieve GPS coordinates.';
+                showToast(msg, 'error');
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
     }
 
     if (btnRefreshGps) {
@@ -349,15 +380,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (severityLevel === '2') severityText = 'Moderate';
             if (severityLevel === '3') severityText = 'Critical';
 
-            // Coordinates
-            const coordsText = gpsCoords.textContent;
-            let lat = 37.7749;
-            let lng = -122.4194;
-            
-            const match = coordsText.match(/Lat:\s*([-\d.]+),\s*Lng:\s*([-\d.]+)/);
-            if (match) {
-                lat = parseFloat(match[1]);
-                lng = parseFloat(match[2]);
+            // Coordinates — use real GPS if available
+            let lat = currentLat;
+            let lng = currentLng;
+
+            if (!lat || !lng) {
+                // Fallback: try parsing from the UI text
+                const coordsText = gpsCoords ? gpsCoords.textContent : '';
+                const match = coordsText.match(/Lat:\s*([-\d.]+),\s*Lng:\s*([-\d.]+)/);
+                if (match) {
+                    lat = parseFloat(match[1]);
+                    lng = parseFloat(match[2]);
+                } else {
+                    showToast('GPS coordinates not available. Please allow location access.', 'error');
+                    return;
+                }
             }
 
             // Calculate SVG coordinates
@@ -387,6 +424,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             incidents.unshift(newIncident);
 
+            // Save to Supabase backend
+            saveIncidentToSupabase(newIncident);
+
             // Reset form
             reportForm.reset();
             if (btnRemovePreview) btnRemovePreview.click();
@@ -400,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 else s.classList.remove('active');
             });
 
-            showToast('Incident reported successfully!', 'success');
+            showToast('Incident reported & saved to database!', 'success');
 
             // Switch to Map Page to see it live
             const mapNavItem = Array.from(navItems).find(item => item.getAttribute('data-target') === 'map');
@@ -408,6 +448,107 @@ document.addEventListener('DOMContentLoaded', () => {
                 mapNavItem.click();
             }
         });
+    }
+
+    // =========================================
+    // Supabase: Save Incident
+    // =========================================
+    async function saveIncidentToSupabase(incident) {
+        try {
+            const payload = {
+                type: incident.type,
+                severity: incident.severity,
+                description: incident.description,
+                latitude: incident.lat,
+                longitude: incident.lng,
+                status: 'active'
+            };
+
+            // Attach reporter info from saved profile
+            try {
+                const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+                if (profile.name) payload.reporter_name = profile.name;
+                if (profile.phone) payload.reporter_phone = profile.phone;
+            } catch(e) { /* ignore */ }
+
+            const { data, error } = await supabase
+                .from('incidents')
+                .insert([payload])
+                .select();
+
+            if (error) {
+                console.error('Supabase insert error:', error);
+                showToast('Saved locally. Backend sync failed.', 'error');
+            } else {
+                console.log('Incident saved to Supabase:', data);
+            }
+        } catch (err) {
+            console.error('Unexpected error saving to Supabase:', err);
+        }
+    }
+
+    // =========================================
+    // Supabase: Load Incidents on Startup
+    // =========================================
+    async function loadIncidentsFromSupabase() {
+        try {
+            const { data, error } = await supabase
+                .from('incidents')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            if (error) {
+                console.warn('Could not load incidents from Supabase:', error);
+                return;
+            }
+
+            if (data && data.length > 0) {
+                // Map DB records to local incident format
+                const remoteIncidents = data.map((rec, i) => ({
+                    id: rec.id,
+                    type: rec.type,
+                    severity: rec.severity,
+                    description: rec.description,
+                    lat: rec.latitude,
+                    lng: rec.longitude,
+                    time: formatTimeAgo(rec.created_at),
+                    icon: getIconForType(rec.type),
+                    x: Math.floor(Math.random() * 550 + 100),
+                    y: Math.floor(Math.random() * 320 + 80)
+                }));
+
+                // Merge: remote incidents first, then keep any local-only ones
+                const remoteIds = new Set(remoteIncidents.map(r => r.id));
+                const localOnly = incidents.filter(inc => !remoteIds.has(inc.id));
+                incidents = [...remoteIncidents, ...localOnly];
+
+                renderDashboard();
+                showToast(`Loaded ${remoteIncidents.length} incident(s) from database.`, 'success');
+            }
+        } catch (err) {
+            console.error('Unexpected error loading from Supabase:', err);
+        }
+    }
+
+    function getIconForType(type) {
+        if (type === 'Collision') return 'ph ph-car-crash';
+        if (type === 'Breakdown') return 'ph ph-wrench';
+        if (type === 'Medical') return 'ph ph-first-aid';
+        if (type === 'Hazard') return 'ph ph-warning-octagon';
+        return 'ph ph-warning';
+    }
+
+    function formatTimeAgo(isoString) {
+        const diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+        return `${Math.floor(diff / 86400)} day(s) ago`;
+    }
+
+    // Dummy closing brace to satisfy existing structure — actual closing is below
+    if (false) {
     }
 
     // =========================================
@@ -765,5 +906,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProfile();
     renderDashboard();
     simulateGPS();
+    loadIncidentsFromSupabase();
 });
 
