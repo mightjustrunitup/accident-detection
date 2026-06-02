@@ -1086,11 +1086,15 @@ input:checked+.slider-round:before {
    Map Page Styles
    ========================================= */
 .map-page {
-    display: flex;
     flex-direction: column;
     padding: 0 !important;
+    margin: 0 -24px;
     overflow: hidden;
     height: 100%;
+}
+
+.map-page.active {
+    display: flex;
 }
 
 .map-controls-bar {
