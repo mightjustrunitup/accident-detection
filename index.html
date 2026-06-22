@@ -11,11 +11,11 @@
     <title>Accident Detection App</title>
     <!-- Error handling for debugging -->
     <script>
-        window.onerror = function(message, source, lineno, colno, error) {
+        window.onerror = function (message, source, lineno, colno, error) {
             alert("JS Error: " + message + " at " + source + ":" + lineno + ":" + colno);
             return false;
         };
-        window.addEventListener('unhandledrejection', function(event) {
+        window.addEventListener('unhandledrejection', function (event) {
             alert("Unhandled Promise Rejection: " + event.reason);
         });
     </script>
@@ -75,7 +75,8 @@
                 <h2>Welcome Back</h2>
                 <p>Sign in to continue reporting incidents and viewing the live map.</p>
                 <button id="btn-google-auth" class="btn-primary-wide">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="google-logo">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo"
+                        class="google-logo">
                     Continue with Google
                 </button>
             </div>
@@ -85,79 +86,36 @@
         <header class="app-header">
             <h1 id="page-title">Home</h1>
             <div class="header-actions">
-                <button class="icon-btn" aria-label="Notifications"><i class="ph ph-bell"></i></button>
+                <button class="icon-btn" aria-label="Notifications" id="btn-notifications">
+                    <i class="ph ph-bell"></i>
+                    <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                </button>
             </div>
         </header>
+
+        <!-- Notifications Panel -->
+        <div id="notifications-panel" class="notifications-panel">
+            <div class="notifications-header">
+                <h3>Notifications</h3>
+                <button id="btn-close-notifications" class="icon-btn"><i class="ph ph-x"></i></button>
+            </div>
+            <div id="notifications-list" class="notifications-list">
+                <!-- Notifications will be injected here -->
+                <div class="empty-notifications">
+                    <i class="ph-duotone ph-bell-slash"></i>
+                    <p>No notifications yet</p>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Content Area -->
         <main id="main-content">
             <!-- Home Page -->
             <section id="home" class="page active">
-                <div class="dashboard-container">
-                    
-                    <!-- Top Action Banner -->
-                    <div class="dashboard-banner">
-                        <div class="banner-text">
-                            <h2>Drive Safely</h2>
-                            <p>Monitoring systems active</p>
-                        </div>
-                        <button id="btn-quick-sos" class="btn-danger-pulse" onclick="document.querySelector('[data-target=\'report\']').click()">
-                            <i class="ph-fill ph-warning-circle"></i> Quick Report
-                        </button>
-                    </div>
-
-                    <!-- Statistics Grid -->
-                    <div class="stats-grid">
-                        <div class="stat-card glass-panel">
-                            <div class="stat-icon safe"><i class="ph-duotone ph-shield-check"></i></div>
-                            <div class="stat-details">
-                                <h3>Safety Score</h3>
-                                <p id="stat-safety-score" class="stat-value">98%</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card glass-panel">
-                            <div class="stat-icon info"><i class="ph-duotone ph-car-profile"></i></div>
-                            <div class="stat-details">
-                                <h3>Total Drives</h3>
-                                <p id="stat-total-drives" class="stat-value">142</p>
-                            </div>
-                        </div>
-
-                        <div class="stat-card glass-panel">
-                            <div class="stat-icon warning"><i class="ph-duotone ph-warning-octagon"></i></div>
-                            <div class="stat-details">
-                                <h3>Alerts</h3>
-                                <p id="stat-incidents" class="stat-value">0</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sensor Check Module -->
-                    <div class="sensor-module glass-panel">
-                        <div class="sensor-info">
-                            <div class="sensor-icon pulse"><i class="ph-duotone ph-activity"></i></div>
-                            <div>
-                                <h3>Accelerometer Status</h3>
-                                <p>G-Force sensors are calibrated.</p>
-                            </div>
-                        </div>
-                        <button id="btn-test-sensors" class="btn-secondary-outline">
-                            <i class="ph ph-activity"></i> Run Test
-                        </button>
-                    </div>
-
-                    <!-- Recent Activity -->
-                    <div class="activity-section">
-                        <div class="section-header">
-                            <i class="ph-duotone ph-clock-counter-clockwise"></i>
-                            <h3>Recent Activity</h3>
-                        </div>
-                        <div id="activity-list" class="activity-feed">
-                            <!-- Injected by JS -->
-                        </div>
-                    </div>
-
+                <div class="blank-state">
+                    <i class="ph-duotone ph-house"></i>
+                    <h2>Welcome Home</h2>
+                    <p>Dashboard and summary will be populated here.</p>
                 </div>
             </section>
 
@@ -220,7 +178,8 @@
                                     <h4 id="report-gps-status">Pending GPS...</h4>
                                     <p id="report-gps-coords">Tap "Detect Location" to acquire GPS.</p>
                                 </div>
-                                <button type="button" id="btn-re-detect-gps" class="icon-btn-secondary" aria-label="Refresh GPS">
+                                <button type="button" id="btn-re-detect-gps" class="icon-btn-secondary"
+                                    aria-label="Refresh GPS">
                                     <i class="ph ph-arrows-clockwise"></i>
                                 </button>
                             </div>
@@ -229,7 +188,8 @@
                         <!-- Description -->
                         <div class="form-group">
                             <label>Additional Details</label>
-                            <textarea id="report-description" rows="3" placeholder="Provide any additional information..." required></textarea>
+                            <textarea id="report-description" rows="3"
+                                placeholder="Provide any additional information..." required></textarea>
                         </div>
 
                         <!-- Photo Attachment -->
@@ -243,7 +203,8 @@
                                 </label>
                                 <div class="upload-preview-container">
                                     <img id="upload-preview" src="" alt="Preview" style="display: none;">
-                                    <button type="button" id="btn-remove-preview" class="icon-btn-danger" style="display: none;">
+                                    <button type="button" id="btn-remove-preview" class="icon-btn-danger"
+                                        style="display: none;">
                                         <i class="ph ph-x"></i>
                                     </button>
                                 </div>
@@ -275,14 +236,9 @@
 
                 <!-- Google Maps Iframe -->
                 <div class="map-frame-wrapper">
-                    <iframe
-                        id="google-map-frame"
-                        class="google-map-iframe"
-                        src="https://maps.google.com/maps?q=0,0&z=14&t=m&output=embed&iwloc=near"
-                        frameborder="0"
-                        allowfullscreen
-                        loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade"
+                    <iframe id="google-map-frame" class="google-map-iframe"
+                        src="https://maps.google.com/maps?q=0,0&z=14&t=m&output=embed&iwloc=near" frameborder="0"
+                        allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
                         title="Live Incident Map">
                     </iframe>
                     <!-- Loading overlay -->
@@ -375,7 +331,8 @@
                         <button type="button" id="btn-save-profile" class="btn-primary-wide">
                             <i class="ph ph-floppy-disk"></i> Save Profile
                         </button>
-                        <button type="button" id="btn-signout" class="btn-text" style="color: #ff6b6b; margin-top: 10px;">
+                        <button type="button" id="btn-signout" class="btn-text"
+                            style="color: #ff6b6b; margin-top: 10px;">
                             <i class="ph ph-sign-out"></i> Sign Out
                         </button>
                     </div>

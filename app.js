@@ -19,6 +19,92 @@ document.addEventListener('DOMContentLoaded', () => {
         'profile': 'My Profile'
     };
 
+    // =========================================
+    // Notifications Panel Logic
+    // =========================================
+    const btnNotifications = document.getElementById('btn-notifications');
+    const notificationsPanel = document.getElementById('notifications-panel');
+    const btnCloseNotifications = document.getElementById('btn-close-notifications');
+    const notificationsListContainer = document.getElementById('notifications-list');
+    const notificationBadge = document.getElementById('notification-badge');
+
+    let persistentNotifications = [];
+    let unreadCount = 0;
+
+    function addPersistentNotification(title, message, type = 'info') {
+        const newNotif = {
+            id: Date.now(),
+            title: title,
+            message: message,
+            type: type,
+            time: new Date()
+        };
+        persistentNotifications.unshift(newNotif);
+        unreadCount++;
+        renderNotifications();
+    }
+
+    function renderNotifications() {
+        if (!notificationsListContainer) return;
+        
+        if (persistentNotifications.length === 0) {
+            notificationsListContainer.innerHTML = `
+                <div class="empty-notifications">
+                    <i class="ph-duotone ph-bell-slash"></i>
+                    <p>No notifications yet</p>
+                </div>
+            `;
+        } else {
+            notificationsListContainer.innerHTML = '';
+            persistentNotifications.forEach(notif => {
+                const item = document.createElement('div');
+                item.className = `notification-item type-${notif.type}`;
+                
+                let iconClass = 'ph-info';
+                if (notif.type === 'success') iconClass = 'ph-check-circle';
+                if (notif.type === 'error') iconClass = 'ph-warning-circle';
+                if (notif.type === 'warning') iconClass = 'ph-warning';
+
+                const timeString = notif.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                item.innerHTML = `
+                    <div class="notification-icon"><i class="ph ${iconClass}"></i></div>
+                    <div class="notification-content">
+                        <h4>${notif.title}</h4>
+                        <p>${notif.message}</p>
+                        <span class="notification-time">${timeString}</span>
+                    </div>
+                `;
+                notificationsListContainer.appendChild(item);
+            });
+        }
+
+        if (notificationBadge) {
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                notificationBadge.style.display = 'inline-block';
+            } else {
+                notificationBadge.style.display = 'none';
+            }
+        }
+    }
+
+    if (btnNotifications && notificationsPanel) {
+        btnNotifications.addEventListener('click', () => {
+            notificationsPanel.classList.toggle('open');
+            if (notificationsPanel.classList.contains('open')) {
+                unreadCount = 0; // mark as read when opened
+                renderNotifications();
+            }
+        });
+    }
+
+    if (btnCloseNotifications && notificationsPanel) {
+        btnCloseNotifications.addEventListener('click', () => {
+            notificationsPanel.classList.remove('open');
+        });
+    }
+
     // Shared incidents state
     let incidents = [
         {
@@ -200,6 +286,14 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUser = session.user;
             authOverlay.style.display = 'none';
             updateProfileWithAuthData(currentUser);
+            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                // To avoid repeating on every reload, we can check a session storage flag
+                if (!sessionStorage.getItem('welcomeNotified')) {
+                    const name = currentUser.user_metadata?.full_name || 'User';
+                    addPersistentNotification('Login Successful', `Welcome back, ${name}!`, 'success');
+                    sessionStorage.setItem('welcomeNotified', 'true');
+                }
+            }
         } else {
             currentUser = null;
             // Only show auth overlay if onboarding is complete
@@ -1015,7 +1109,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showToast(message, type = 'success') {
+    function showToast(message, type = 'success', title = null) {
+        if (!title) {
+            title = type === 'success' ? 'Success' : type === 'error' ? 'Error' : type === 'warning' ? 'Warning' : 'Notification';
+        }
+        
+        // Also add to persistent notifications panel
+        addPersistentNotification(title, message, type);
+
         if (!toastContainer) return;
         
         const toast = document.createElement('div');
