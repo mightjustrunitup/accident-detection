@@ -1473,7 +1473,7 @@ input:checked+.slider-round:before {
     position: absolute;
     top: 70px;
     right: 20px;
-    width: 360px;
+    width: 320px;
     max-height: 400px;
     background: var(--surface);
     border-radius: var(--border-radius-lg);

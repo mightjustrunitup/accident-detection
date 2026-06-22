@@ -273,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Sign out failed.', 'error');
             } else {
                 showToast('Signed out successfully.', 'success');
+                sessionStorage.removeItem('welcomeNotified');
                 // Clean the URL to remove any lingering OAuth tokens
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
@@ -290,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // To avoid repeating on every reload, we can check a session storage flag
                 if (!sessionStorage.getItem('welcomeNotified')) {
                     const name = currentUser.user_metadata?.full_name || 'User';
-                    addPersistentNotification('Login Successful', `Welcome back, ${name}!`, 'success');
+                    showToast(`Welcome back, ${name}!`, 'success', 'Login Successful');
                     sessionStorage.setItem('welcomeNotified', 'true');
                 }
             }
