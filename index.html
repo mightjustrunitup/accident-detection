@@ -112,10 +112,71 @@
         <main id="main-content">
             <!-- Home Page -->
             <section id="home" class="page active">
-                <div class="blank-state">
-                    <i class="ph-duotone ph-house"></i>
-                    <h2>Welcome Home</h2>
-                    <p>Dashboard and summary will be populated here.</p>
+                <div class="dashboard-container">
+                    
+                    <!-- Top Action Banner -->
+                    <div class="dashboard-banner">
+                        <div class="banner-text">
+                            <h2>Drive Safely</h2>
+                            <p>Monitoring systems active</p>
+                        </div>
+                        <button id="btn-quick-sos" class="btn-danger-pulse" onclick="document.querySelector('[data-target=\'report\']').click()">
+                            <i class="ph-fill ph-warning-circle"></i> Quick Report
+                        </button>
+                    </div>
+
+                    <!-- Statistics Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon safe"><i class="ph-duotone ph-shield-check"></i></div>
+                            <div class="stat-details">
+                                <h3>Safety Score</h3>
+                                <p id="stat-safety-score" class="stat-value">98%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon info"><i class="ph-duotone ph-car-profile"></i></div>
+                            <div class="stat-details">
+                                <h3>Total Drives</h3>
+                                <p id="stat-total-drives" class="stat-value">142</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon warning"><i class="ph-duotone ph-warning-octagon"></i></div>
+                            <div class="stat-details">
+                                <h3>Alerts</h3>
+                                <p id="stat-incidents" class="stat-value">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sensor Check Module -->
+                    <div class="sensor-module glass-panel">
+                        <div class="sensor-info">
+                            <div class="sensor-icon pulse"><i class="ph-duotone ph-activity"></i></div>
+                            <div>
+                                <h3>Accelerometer Status</h3>
+                                <p>G-Force sensors are calibrated.</p>
+                            </div>
+                        </div>
+                        <button id="btn-test-sensors" class="btn-secondary-outline">
+                            <i class="ph ph-activity"></i> Run Test
+                        </button>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <i class="ph-duotone ph-clock-counter-clockwise"></i>
+                            <h3>Recent Activity</h3>
+                        </div>
+                        <div id="activity-list" class="activity-feed">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
