@@ -1215,11 +1215,11 @@ input:checked+.slider-round:before {
 
 /* Glassmorphism Panel */
 .glass-panel {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(10, 10, 15, 0.06);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 8px 32px rgba(108, 92, 231, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(108, 92, 231, 0.08);
     border-radius: var(--border-radius-lg);
 }
 
