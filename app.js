@@ -893,7 +893,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let profileData = {
         name: 'John Doe',
-        phone: '+1 (555) 019-2834',
+        phone: '',
         email: 'johndoe@example.com',
         avatar: '',
         settings: {
@@ -908,14 +908,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const savedData = localStorage.getItem('userProfile');
             if (savedData) {
                 profileData = JSON.parse(savedData);
+                if (profileData.phone && profileData.phone.includes('555')) {
+                    profileData.phone = '';
+                    localStorage.setItem('userProfile', JSON.stringify(profileData));
+                }
             }
         } catch (error) {
             console.warn('Could not load profile from localStorage', error);
         }
         
-        if (profileData.name && profileName) profileName.value = profileData.name;
-        if (profileData.phone && profilePhone) profilePhone.value = profileData.phone;
-        if (profileData.email && profileEmail) profileEmail.value = profileData.email;
+        if (profileName) profileName.value = profileData.name || '';
+        if (profilePhone) profilePhone.value = profileData.phone || '';
+        if (profileEmail) profileEmail.value = profileData.email || '';
         
         if (profileData.avatar && profileAvatar) {
             profileAvatar.src = profileData.avatar;
