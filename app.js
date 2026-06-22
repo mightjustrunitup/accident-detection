@@ -226,10 +226,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const profileName = document.getElementById('profile-name');
         const profileEmail = document.getElementById('profile-email');
         const profileAvatar = document.getElementById('profile-avatar');
+        const profilePhone = document.getElementById('profile-phone');
 
         if (user.user_metadata) {
             if (profileName && user.user_metadata.full_name) {
                 profileName.value = user.user_metadata.full_name;
+            }
+            if (profilePhone && user.user_metadata.phone) {
+                profilePhone.value = user.user_metadata.phone;
             }
             if (profileAvatar && user.user_metadata.avatar_url) {
                 profileAvatar.src = user.user_metadata.avatar_url;
@@ -932,7 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function saveProfile() {
+    async function saveProfile() {
         if (profileName) profileData.name = profileName.value.trim();
         if (profilePhone) profileData.phone = profilePhone.value.trim();
         if (profileEmail) profileData.email = profileEmail.value.trim();
@@ -943,12 +947,46 @@ document.addEventListener('DOMContentLoaded', () => {
             notify: settingNotify ? settingNotify.checked : true
         };
 
+        if (btnSaveProfile) {
+            btnSaveProfile.disabled = true;
+            btnSaveProfile.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Saving...';
+        }
+
         try {
+            // Save locally
             localStorage.setItem('userProfile', JSON.stringify(profileData));
-            showToast('Profile saved successfully!', 'success');
+            
+            // Sync with Supabase if logged in
+            if (currentUser) {
+                const updates = {
+                    full_name: profileData.name,
+                    phone: profileData.phone
+                };
+                
+                // Prevent large base64 strings from crashing the auth metadata payload
+                if (profileData.avatar && !profileData.avatar.startsWith('data:image')) {
+                    updates.avatar_url = profileData.avatar;
+                }
+
+                const { error } = await supabase.auth.updateUser({ data: updates });
+
+                if (error) {
+                    console.error('Supabase profile sync error:', error);
+                    showToast('Saved locally, but backend sync failed.', 'warning');
+                } else {
+                    showToast('Profile saved and synced successfully!', 'success');
+                }
+            } else {
+                showToast('Profile saved locally!', 'success');
+            }
         } catch (error) {
-            console.error('Could not save profile to localStorage', error);
+            console.error('Could not save profile', error);
             showToast('Failed to save profile.', 'error');
+        } finally {
+            if (btnSaveProfile) {
+                btnSaveProfile.disabled = false;
+                btnSaveProfile.innerHTML = '<i class="ph ph-floppy-disk"></i> Save Profile';
+            }
         }
     }
 
