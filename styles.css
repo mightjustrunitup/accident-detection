@@ -981,7 +981,7 @@ input:checked+.slider-round:before {
     align-items: center;
     gap: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
 }
 
 .gps-icon-wrapper {
@@ -1473,7 +1473,7 @@ input:checked+.slider-round:before {
     position: absolute;
     top: 70px;
     right: 20px;
-    width: 320px;
+    width: 360px;
     max-height: 400px;
     background: var(--surface);
     border-radius: var(--border-radius-lg);
@@ -1486,7 +1486,7 @@ input:checked+.slider-round:before {
     transform: translateY(-10px);
     pointer-events: none;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
 }
 
 .notifications-panel.open {
