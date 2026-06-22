@@ -105,33 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Shared incidents state
-    let incidents = [
-        {
-            id: 1,
-            type: 'Collision',
-            severity: 'Critical',
-            description: 'Multi-vehicle collision near Main St & 4th Ave.',
-            lat: 37.7749,
-            lng: -122.4194,
-            time: '12 mins ago',
-            icon: 'ph ph-car-crash',
-            x: 360,
-            y: 180
-        },
-        {
-            id: 2,
-            type: 'Hazard',
-            severity: 'Minor',
-            description: 'Road debris / tire hazard blocking middle lane.',
-            lat: 37.7833,
-            lng: -122.4167,
-            time: '1 hr ago',
-            icon: 'ph ph-warning-octagon',
-            x: 520,
-            y: 400
-        }
-    ];
+    // Shared incidents state (starts empty — filled from Supabase)
+    let incidents = [];
 
     // Navigation Click Handler
     navItems.forEach(item => {
@@ -287,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUser = session.user;
             authOverlay.style.display = 'none';
             updateProfileWithAuthData(currentUser);
+            renderDashboard();
             if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
                 // To avoid repeating on every reload, we can check a session storage flag
                 if (!sessionStorage.getItem('welcomeNotified')) {
@@ -348,78 +324,98 @@ document.addEventListener('DOMContentLoaded', () => {
     const activityList = document.getElementById('activity-list');
     const btnTestSensors = document.getElementById('btn-test-sensors');
 
-    function renderDashboard() {
-        // Update stats
-        if (statIncidents) {
-            statIncidents.textContent = incidents.length;
-            const incidentCard = statIncidents.closest('.stat-card');
-            if (incidents.length > 0) {
-                incidentCard.classList.add('pulse-active');
-            } else {
-                incidentCard.classList.remove('pulse-active');
+    async function renderDashboard() {
+        // Show loading state
+        if (statIncidents) statIncidents.textContent = '...';
+        if (statSafetyScore) statSafetyScore.textContent = '...';
+        if (statTotalDrives) statTotalDrives.textContent = '...';
+
+        try {
+            // Fetch all incidents from Supabase
+            const { data: allIncidents, error: allError } = await supabase
+                .from('incidents')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            if (allError) throw allError;
+
+            const total = allIncidents ? allIncidents.length : 0;
+            const criticalCount = allIncidents ? allIncidents.filter(i => i.severity === 'Critical').length : 0;
+
+            // Safety score: 100% minus 5 points per critical incident (min 0)
+            const safetyScore = Math.max(0, 100 - (criticalCount * 5));
+
+            // Total reports count
+            const totalReports = total;
+
+            // Update stat cards
+            if (statIncidents) {
+                statIncidents.textContent = total;
+                const incidentCard = statIncidents.closest('.stat-card');
+                if (total > 0) {
+                    incidentCard.classList.add('pulse-active');
+                } else {
+                    incidentCard.classList.remove('pulse-active');
+                }
             }
-        }
+            if (statSafetyScore) statSafetyScore.textContent = safetyScore + '%';
+            if (statTotalDrives) statTotalDrives.textContent = totalReports;
 
-        // Render drive logs + custom reports
-        if (activityList) {
-            activityList.innerHTML = '';
-            
-            // Standard logs
-            const defaultLogs = [
-                {
-                    title: 'Commute to Work',
-                    desc: 'Today, 8:42 AM • 12.4 miles • Safe Drive',
-                    badgeText: '99%',
-                    badgeClass: 'badge-success',
-                    iconClass: 'safe',
-                    icon: 'ph ph-check'
-                },
-                {
-                    title: 'Grocery Run',
-                    desc: 'Yesterday, 5:15 PM • 3.2 miles • Safe Drive',
-                    badgeText: '97%',
-                    badgeClass: 'badge-success',
-                    iconClass: 'safe',
-                    icon: 'ph ph-check'
+            // Update activity feed with real incidents
+            if (activityList) {
+                activityList.innerHTML = '';
+
+                if (!allIncidents || allIncidents.length === 0) {
+                    activityList.innerHTML = `
+                        <div style="text-align:center; padding: 24px; color: var(--text-light);">
+                            <i class="ph-duotone ph-clipboard-text" style="font-size:32px;"></i>
+                            <p style="margin-top:8px;">No incidents reported yet.</p>
+                        </div>
+                    `;
+                } else {
+                    allIncidents.forEach(inc => {
+                        let badgeClass = 'badge-success';
+                        let iconClass = 'safe';
+                        if (inc.severity === 'Moderate') { badgeClass = 'badge-warning'; iconClass = 'warning'; }
+                        if (inc.severity === 'Critical') { badgeClass = 'badge-danger'; iconClass = 'danger'; }
+
+                        const item = document.createElement('div');
+                        item.className = 'activity-item';
+                        item.innerHTML = `
+                            <div class="activity-icon ${iconClass}"><i class="ph ph-warning"></i></div>
+                            <div class="activity-info">
+                                <h4>Reported: ${inc.type}</h4>
+                                <p>${formatTimeAgo(inc.created_at)} • ${inc.description}</p>
+                            </div>
+                            <span class="badge ${badgeClass}">${inc.severity}</span>
+                        `;
+                        activityList.appendChild(item);
+                    });
                 }
-            ];
+            }
 
-            // Render newly reported incidents in feed
-            incidents.forEach(inc => {
-                let badgeClass = 'badge-danger';
-                let iconClass = 'danger';
-                if (inc.severity === 'Minor') {
-                    badgeClass = 'badge-warning';
-                    iconClass = 'warning';
-                }
-                
-                const item = document.createElement('div');
-                item.className = 'activity-item';
-                item.innerHTML = `
-                    <div class="activity-icon ${iconClass}"><i class="ph ph-warning"></i></div>
-                    <div class="activity-info">
-                        <h4>Reported: ${inc.type}</h4>
-                        <p>${inc.time} • ${inc.description}</p>
-                    </div>
-                    <span class="badge ${badgeClass}">${inc.severity}</span>
-                `;
-                activityList.appendChild(item);
-            });
+            // Also sync local incidents array for map use
+            if (allIncidents && allIncidents.length > 0) {
+                incidents = allIncidents.map(rec => ({
+                    id: rec.id,
+                    type: rec.type,
+                    severity: rec.severity,
+                    description: rec.description,
+                    lat: rec.latitude,
+                    lng: rec.longitude,
+                    time: formatTimeAgo(rec.created_at),
+                    icon: getIconForType(rec.type),
+                    x: Math.floor(Math.random() * 550 + 100),
+                    y: Math.floor(Math.random() * 320 + 80)
+                }));
+            }
 
-            // Render default drives
-            defaultLogs.forEach(log => {
-                const item = document.createElement('div');
-                item.className = 'activity-item';
-                item.innerHTML = `
-                    <div class="activity-icon ${log.iconClass}"><i class="${log.icon}"></i></div>
-                    <div class="activity-info">
-                        <h4>${log.title}</h4>
-                        <p>${log.desc}</p>
-                    </div>
-                    <span class="badge ${log.badgeClass}">${log.badgeText}</span>
-                `;
-                activityList.appendChild(item);
-            });
+        } catch (err) {
+            console.error('Error loading dashboard stats:', err);
+            if (statIncidents) statIncidents.textContent = '0';
+            if (statSafetyScore) statSafetyScore.textContent = '100%';
+            if (statTotalDrives) statTotalDrives.textContent = '0';
         }
     }
 
