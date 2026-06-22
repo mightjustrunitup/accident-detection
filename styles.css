@@ -186,12 +186,12 @@ body {
     -webkit-backdrop-filter: blur(12px);
     display: flex;
     justify-content: space-around;
-    align-items: center;
+    align-items: flex-start;
+    padding-top: 12px;
     box-shadow: var(--shadow-nav);
     border-top-left-radius: var(--border-radius-lg);
     border-top-right-radius: var(--border-radius-lg);
-    padding-bottom: calc(8px + env(safe-area-inset-bottom));
-    /* Safe area approximation */
+    padding-bottom: env(safe-area-inset-bottom);
     z-index: 100;
 }
 
