@@ -1211,16 +1211,51 @@ input:checked+.slider-round:before {
     flex-direction: column;
     gap: 20px;
     padding-bottom: 30px;
+    background: linear-gradient(160deg, #0f0f1a 0%, #1a1025 50%, #0d1520 100%);
+    margin: -24px;
+    padding: 24px;
+    padding-bottom: 50px;
+    min-height: 100%;
 }
 
 /* Glassmorphism Panel */
 .glass-panel {
-    background: rgba(10, 10, 15, 0.06);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(108, 92, 231, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     border-radius: var(--border-radius-lg);
+}
+
+/* White text inside dark glass panels */
+.glass-panel .stat-value,
+.glass-panel .stat-details h3,
+.glass-panel .sensor-info h3,
+.glass-panel .sensor-info p,
+.activity-section .section-header h3,
+.activity-section .section-header i {
+    color: #ffffff !important;
+}
+
+/* Activity items on dark background */
+.dashboard-container .activity-item {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+}
+
+.dashboard-container .activity-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.dashboard-container .activity-info h4 {
+    color: #ffffff;
+}
+
+.dashboard-container .activity-info p {
+    color: rgba(255, 255, 255, 0.6);
 }
 
 /* Dark mode adjustment for glass panels */
