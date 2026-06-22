@@ -1622,3 +1622,16 @@ input:checked+.slider-round:before {
     line-height: 1;
 }
 
+
+#main-content {
+    z-index: 1;
+}
+
+.notifications-panel {
+    z-index: 9999 !important;
+}
+
+.app-header {
+    z-index: 9998 !important;
+}
+
