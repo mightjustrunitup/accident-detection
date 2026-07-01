@@ -382,14 +382,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const item = document.createElement('div');
                         item.className = 'activity-item';
+                        item.style.cursor = 'pointer';
                         item.innerHTML = `
                             <div class="activity-icon ${iconClass}"><i class="ph ph-warning"></i></div>
                             <div class="activity-info">
                                 <h4>Reported: ${inc.type}</h4>
-                                <p>${formatTimeAgo(inc.created_at)} • ${inc.description}</p>
+                                <p>${formatTimeAgo(inc.created_at)} • ${inc.description.substring(0, 40)}...</p>
                             </div>
                             <span class="badge ${badgeClass}">${inc.severity}</span>
                         `;
+                        
+                        item.addEventListener('click', () => {
+                            showIncidentModal({
+                                type: inc.type,
+                                severity: inc.severity,
+                                description: inc.description,
+                                lat: inc.latitude,
+                                lng: inc.longitude,
+                                time: formatTimeAgo(inc.created_at)
+                            });
+                        });
+                        
                         activityList.appendChild(item);
                     });
                 }
@@ -571,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             content: [
                                 {
                                     type: "text",
-                                    text: "Analyze this image. Is there a real accident, vehicle breakdown, medical emergency, or road hazard visible? Answer strictly with a single word: YES or NO."
+                                    text: "Analyze this image to confirm if there is a real accident, vehicle breakdown, medical emergency, or road hazard visible.\nFirst line: answer exactly YES or NO.\nSecond line: provide a 1-2 sentence explanation of what you see."
                                 },
                                 {
                                     type: "image_url",
@@ -587,15 +600,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
                 console.error("AI API Error:", await response.text());
-                return "ERROR";
+                return { result: "ERROR", explanation: "" };
             }
 
             const data = await response.json();
-            const answer = data.choices[0].message.content.trim().toUpperCase();
-            return answer.includes("YES") ? "YES" : "NO";
+            const answerText = data.choices[0].message.content.trim();
+            const lines = answerText.split('\n');
+            const result = lines[0].toUpperCase().includes("YES") ? "YES" : "NO";
+            const explanation = lines.slice(1).join(' ').trim() || "No explanation provided.";
+
+            return { result, explanation };
         } catch (error) {
             console.error("AI API Fetch Error:", error);
-            return "ERROR";
+            return { result: "ERROR", explanation: "" };
         }
     }
 
@@ -627,23 +644,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const submitBtn = reportForm.querySelector('.submit-report-btn');
+            let finalDescription = descriptionVal;
 
             // AI Verification Step
             if (uploadPreview && uploadPreview.src && uploadPreview.src.startsWith('data:image')) {
                 if (submitBtn) submitBtn.classList.add('btn-loading');
                 showToast('AI is verifying your image...', 'info');
                 
-                const aiResult = await verifyIncidentWithAI(uploadPreview.src);
+                const aiData = await verifyIncidentWithAI(uploadPreview.src);
                 
                 if (submitBtn) submitBtn.classList.remove('btn-loading');
 
-                if (aiResult === 'NO') {
+                if (aiData.result === 'NO') {
                     showToast('AI Verification Failed: The attached image does not appear to show a valid incident.', 'error');
                     return; // Halt submission
-                } else if (aiResult === 'ERROR') {
+                } else if (aiData.result === 'ERROR') {
                     showToast('AI Verification encountered an error. Proceeding anyway.', 'warning');
                 } else {
                     showToast('AI Verification Passed!', 'success');
+                    finalDescription += `\n\nAI Analysis: ${aiData.explanation}`;
                 }
             } else {
                 // If no photo is attached, we can decide to either allow it or block it.
@@ -673,7 +692,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: Date.now(),
                 type: selectedType,
                 severity: severityText,
-                description: descriptionVal,
+                description: finalDescription,
                 lat: lat,
                 lng: lng,
                 time: 'Just now',
@@ -882,10 +901,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 showToast(`Viewing details for ${inc.type} incident.`, 'success');
+                showIncidentModal({
+                    type: inc.type,
+                    severity: inc.severity,
+                    description: inc.description,
+                    lat: inc.latitude || inc.lat,
+                    lng: inc.longitude || inc.lng,
+                    time: formatTimeAgo(inc.created_at || new Date().toISOString())
+                });
             });
 
             mapIncidentList.appendChild(item);
         });
+    }
+
+    // Modal Logic
+    const incidentModal = document.getElementById('incident-details-modal');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+
+    if (btnCloseModal) {
+        btnCloseModal.addEventListener('click', () => {
+            incidentModal.style.display = 'none';
+        });
+    }
+
+    function showIncidentModal(inc) {
+        if (!incidentModal) return;
+
+        document.getElementById('modal-type').textContent = `${inc.type} Alert`;
+        document.getElementById('modal-severity').textContent = inc.severity;
+        
+        let badgeClass = 'badge-success';
+        if (inc.severity === 'Moderate') badgeClass = 'badge-warning';
+        if (inc.severity === 'Critical') badgeClass = 'badge-danger';
+        document.getElementById('modal-severity').className = `badge ${badgeClass}`;
+
+        document.getElementById('modal-time').innerHTML = `<i class="ph ph-clock"></i> ${inc.time}`;
+        document.getElementById('modal-location').textContent = `Lat: ${parseFloat(inc.lat).toFixed(6)}, Lng: ${parseFloat(inc.lng).toFixed(6)}`;
+
+        // Separate AI Analysis from description
+        const descText = inc.description || '';
+        const aiSplit = descText.split('\n\nAI Analysis: ');
+        const mainDesc = aiSplit[0];
+        const aiAnalysis = aiSplit[1];
+
+        document.getElementById('modal-description').textContent = mainDesc;
+
+        const aiSection = document.getElementById('modal-ai-section');
+        const aiText = document.getElementById('modal-ai-text');
+        
+        if (aiAnalysis) {
+            aiText.textContent = aiAnalysis;
+            aiSection.style.display = 'block';
+        } else {
+            aiSection.style.display = 'none';
+        }
+
+        incidentModal.style.display = 'flex';
     }
 
     function renderMapMarkers() {
