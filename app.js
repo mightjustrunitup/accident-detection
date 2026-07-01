@@ -380,6 +380,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (inc.severity === 'Moderate') { badgeClass = 'badge-warning'; iconClass = 'warning'; }
                         if (inc.severity === 'Critical') { badgeClass = 'badge-danger'; iconClass = 'danger'; }
 
+                        const descText = inc.description || '';
+                        const aiSplit = descText.split('\n\nAI Analysis: ');
+                        const mainDesc = aiSplit[0];
+                        const aiAnalysis = aiSplit[1];
+
                         const item = document.createElement('div');
                         item.className = 'activity-item';
                         item.style.cursor = 'pointer';
@@ -387,7 +392,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="activity-icon ${iconClass}"><i class="ph ph-warning"></i></div>
                             <div class="activity-info">
                                 <h4>Reported: ${inc.type}</h4>
-                                <p>${formatTimeAgo(inc.created_at)} • ${inc.description.substring(0, 40)}...</p>
+                                <p>${formatTimeAgo(inc.created_at)} • ${mainDesc.substring(0, 40)}...</p>
+                                ${aiAnalysis ? `<div style="font-size: 11px; margin-top: 6px; color: #00b894; background: rgba(0, 184, 148, 0.08); padding: 6px 10px; border-radius: 6px; display: flex; align-items: flex-start; gap: 6px; line-height: 1.4;"><i class="ph-duotone ph-robot" style="font-size: 14px; margin-top: 1px;"></i> <span><strong>AI Analysis:</strong> ${aiAnalysis}</span></div>` : ''}
                             </div>
                             <span class="badge ${badgeClass}">${inc.severity}</span>
                         `;
