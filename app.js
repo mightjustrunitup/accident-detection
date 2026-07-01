@@ -340,8 +340,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (allError) throw allError;
 
-            const total = allIncidents ? allIncidents.length : 0;
-            const criticalCount = allIncidents ? allIncidents.filter(i => i.severity === 'Critical').length : 0;
+            if (allIncidents) {
+                const remoteIncidents = allIncidents.map(rec => ({
+                    id: rec.id,
+                    type: rec.type,
+                    severity: rec.severity,
+                    description: rec.description,
+                    lat: rec.latitude,
+                    lng: rec.longitude,
+                    time: formatTimeAgo(rec.created_at),
+                    icon: getIconForType(rec.type),
+                    x: Math.floor(Math.random() * 550 + 100),
+                    y: Math.floor(Math.random() * 320 + 80)
+                }));
+                const remoteIds = new Set(remoteIncidents.map(r => r.id));
+                const localOnly = incidents.filter(inc => !remoteIds.has(inc.id));
+                incidents = [...localOnly, ...remoteIncidents];
+            }
+
+            const total = incidents.length;
+            const criticalCount = incidents.filter(i => i.severity === 'Critical').length;
 
             // Safety score: 100% minus 5 points per critical incident (min 0)
             const safetyScore = Math.max(0, 100 - (criticalCount * 5));
@@ -362,11 +380,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (statSafetyScore) statSafetyScore.textContent = safetyScore + '%';
             if (statTotalDrives) statTotalDrives.textContent = totalReports;
 
-            // Update activity feed with real incidents
+            // Update activity feed with unified incidents
             if (activityList) {
                 activityList.innerHTML = '';
 
-                if (!allIncidents || allIncidents.length === 0) {
+                if (incidents.length === 0) {
                     activityList.innerHTML = `
                         <div style="text-align:center; padding: 24px; color: var(--text-light);">
                             <i class="ph-duotone ph-clipboard-text" style="font-size:32px;"></i>
@@ -374,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     `;
                 } else {
-                    allIncidents.forEach(inc => {
+                    incidents.forEach(inc => {
                         let badgeClass = 'badge-success';
                         let iconClass = 'safe';
                         if (inc.severity === 'Moderate') { badgeClass = 'badge-warning'; iconClass = 'warning'; }
@@ -392,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="activity-icon ${iconClass}"><i class="ph ph-warning"></i></div>
                             <div class="activity-info">
                                 <h4>Reported: ${inc.type}</h4>
-                                <p>${formatTimeAgo(inc.created_at)} • ${mainDesc.substring(0, 40)}...</p>
+                                <p>${inc.time} • ${mainDesc.substring(0, 40)}...</p>
                                 ${aiAnalysis ? `<div style="font-size: 11px; margin-top: 6px; color: #00b894; background: rgba(0, 184, 148, 0.08); padding: 6px 10px; border-radius: 6px; display: flex; align-items: flex-start; gap: 6px; line-height: 1.4;"><i class="ph-duotone ph-robot" style="font-size: 14px; margin-top: 1px;"></i> <span><strong>AI Analysis:</strong> ${aiAnalysis}</span></div>` : ''}
                             </div>
                             <span class="badge ${badgeClass}">${inc.severity}</span>
@@ -403,31 +421,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 type: inc.type,
                                 severity: inc.severity,
                                 description: inc.description,
-                                lat: inc.latitude,
-                                lng: inc.longitude,
-                                time: formatTimeAgo(inc.created_at)
+                                lat: inc.lat,
+                                lng: inc.lng,
+                                time: inc.time
                             });
                         });
                         
                         activityList.appendChild(item);
                     });
                 }
-            }
-
-            // Also sync local incidents array for map use
-            if (allIncidents && allIncidents.length > 0) {
-                incidents = allIncidents.map(rec => ({
-                    id: rec.id,
-                    type: rec.type,
-                    severity: rec.severity,
-                    description: rec.description,
-                    lat: rec.latitude,
-                    lng: rec.longitude,
-                    time: formatTimeAgo(rec.created_at),
-                    icon: getIconForType(rec.type),
-                    x: Math.floor(Math.random() * 550 + 100),
-                    y: Math.floor(Math.random() * 320 + 80)
-                }));
             }
 
         } catch (err) {
