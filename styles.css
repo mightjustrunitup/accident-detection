@@ -257,13 +257,13 @@ body {
    Onboarding Overlay Styles
    ========================================= */
 .onboarding-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    background-color: var(--background);
-    z-index: 1000;
+    height: 100dvh;
+    background-color: #0a0a0f;
+    z-index: 99999;
     display: flex;
     flex-direction: column;
     transition: opacity 0.4s ease, visibility 0.4s ease;
