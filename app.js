@@ -553,9 +553,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // AI Verification Function using Alibaba Qwen-VL
+    async function verifyIncidentWithAI(base64Image) {
+        const apiKey = "sk-ws-H.YDPXXH.zM15.MEQCIEOJcXUKUcE8KDnDyzQ-oEMQi2X1BtoqjMqBd_cpZwAPAiBFnnauAcdDBrDNxoqnNhu4ybBvp9IP-gArB0q4oVbrFg";
+        try {
+            const response = await fetch("https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "qwen-vl-plus",
+                    messages: [
+                        {
+                            role: "user",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: "Analyze this image. Is there a real accident, vehicle breakdown, medical emergency, or road hazard visible? Answer strictly with a single word: YES or NO."
+                                },
+                                {
+                                    type: "image_url",
+                                    image_url: {
+                                        url: base64Image
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                })
+            });
+
+            if (!response.ok) {
+                console.error("AI API Error:", await response.text());
+                return "ERROR";
+            }
+
+            const data = await response.json();
+            const answer = data.choices[0].message.content.trim().toUpperCase();
+            return answer.includes("YES") ? "YES" : "NO";
+        } catch (error) {
+            console.error("AI API Fetch Error:", error);
+            return "ERROR";
+        }
+    }
+
     // Form Submit Handler
     if (reportForm) {
-        reportForm.addEventListener('submit', (e) => {
+        reportForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const descriptionVal = document.getElementById('report-description').value.trim();
@@ -564,18 +610,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Severity level text mapping
-            const severityLevel = severityRange ? severityRange.value : '1';
-            let severityText = 'Minor';
-            if (severityLevel === '2') severityText = 'Moderate';
-            if (severityLevel === '3') severityText = 'Critical';
-
             // Coordinates — use real GPS if available
             let lat = currentLat;
             let lng = currentLng;
 
             if (!lat || !lng) {
-                // Fallback: try parsing from the UI text
                 const coordsText = gpsCoords ? gpsCoords.textContent : '';
                 const match = coordsText.match(/Lat:\s*([-\d.]+),\s*Lng:\s*([-\d.]+)/);
                 if (match) {
@@ -587,8 +626,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            const submitBtn = reportForm.querySelector('.submit-report-btn');
+
+            // AI Verification Step
+            if (uploadPreview && uploadPreview.src && uploadPreview.src.startsWith('data:image')) {
+                if (submitBtn) submitBtn.classList.add('btn-loading');
+                showToast('AI is verifying your image...', 'info');
+                
+                const aiResult = await verifyIncidentWithAI(uploadPreview.src);
+                
+                if (submitBtn) submitBtn.classList.remove('btn-loading');
+
+                if (aiResult === 'NO') {
+                    showToast('AI Verification Failed: The attached image does not appear to show a valid incident.', 'error');
+                    return; // Halt submission
+                } else if (aiResult === 'ERROR') {
+                    showToast('AI Verification encountered an error. Proceeding anyway.', 'warning');
+                } else {
+                    showToast('AI Verification Passed!', 'success');
+                }
+            } else {
+                // If no photo is attached, we can decide to either allow it or block it.
+                // We will allow it for now, as photo was marked (Optional).
+            }
+
+            if (submitBtn) submitBtn.classList.add('btn-loading');
+
+            // Severity level text mapping
+            const severityLevel = severityRange ? severityRange.value : '1';
+            let severityText = 'Minor';
+            if (severityLevel === '2') severityText = 'Moderate';
+            if (severityLevel === '3') severityText = 'Critical';
+
             // Calculate SVG coordinates
-            // Map bounds approx matching SVG viewport (800x600)
             const mapX = Math.floor(Math.random() * 550 + 100);
             const mapY = Math.floor(Math.random() * 320 + 80);
 
@@ -615,7 +685,9 @@ document.addEventListener('DOMContentLoaded', () => {
             incidents.unshift(newIncident);
 
             // Save to Supabase backend
-            saveIncidentToSupabase(newIncident);
+            await saveIncidentToSupabase(newIncident);
+
+            if (submitBtn) submitBtn.classList.remove('btn-loading');
 
             // Reset form
             reportForm.reset();
