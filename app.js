@@ -764,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (error) {
                 console.error('Supabase insert error:', error);
-                showToast('Saved locally. Backend sync failed.', 'error');
+                showToast(`Backend sync failed: ${error.message}`, 'error');
             } else {
                 console.log('Incident saved to Supabase:', data);
             }
