@@ -629,11 +629,8 @@ document.addEventListener('DOMContentLoaded', () => {
         reportForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const descriptionVal = document.getElementById('report-description').value.trim();
-            if (!descriptionVal) {
-                showToast('Please enter an incident description.', 'error');
-                return;
-            }
+            const descriptionRaw = document.getElementById('report-description').value.trim();
+            const descriptionVal = descriptionRaw || 'No additional details provided.';
 
             // Coordinates — use real GPS if available
             let lat = currentLat;
